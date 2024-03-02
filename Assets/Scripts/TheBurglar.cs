@@ -131,8 +131,15 @@ public class TheBurglar : MonoBehaviour
         {
             _panelWinner.SetActive(true);
             _timer = 0;
+            StopCoroutine(Countdown());
         }
-        if (_timer == 0)
+        else if (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7)
+        {
+            _panelWinner.SetActive(true);
+            _timer = 0;
+            StopCoroutine(Countdown());
+        }
+        else if (_timer == 0)
         {
             _panelLoser.SetActive(true);
         }
