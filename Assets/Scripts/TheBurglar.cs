@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 
@@ -16,6 +18,21 @@ public class TheBurglar : MonoBehaviour
     public TMP_Text _timerText;
     public GameObject _panelWinner;
     public GameObject _panelLoser;
+    public UnityEngine.UI.Button _buttonResetNumber;
+    public AudioSource soundWinnerPanel;
+    public AudioSource soundLoserPanel;
+
+
+    public GameObject imagePinFirst;
+    public GameObject imagePinSecond;
+    public GameObject imagePinThird;
+    public GameObject _buttonDrill;
+    public GameObject _buttonHammer;
+    public GameObject _buttonLockPick;
+    public GameObject _buttonDynamite;
+    public GameObject panelTimer;
+
+
 
     private int _randomNumberFirstPin;
     private int _randomNumberSecondPin;
@@ -38,6 +55,15 @@ public class TheBurglar : MonoBehaviour
 
     public void OnClickButtonRestart()
     {
+        imagePinFirst.SetActive(true);
+        imagePinSecond.SetActive(true);
+        imagePinThird.SetActive(true);
+        _buttonDrill.SetActive(true);
+        _buttonHammer.SetActive(true);
+        _buttonLockPick.SetActive(true);
+        _buttonDynamite.SetActive(true);
+        panelTimer.SetActive(true);
+        _buttonResetNumber.interactable = true;
         _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
         _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
         _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
@@ -124,24 +150,69 @@ public class TheBurglar : MonoBehaviour
         
     }
 
-    
+    public void OnClickResetNumber()
+    {
+        _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
+        _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
+        _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
+        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
+        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
+        _numberPinThirdText.text = _randomNumberThirdPin.ToString();
+        _buttonResetNumber.interactable = false;
+        StartCoroutine(DelayAndEnableButton());
+    }
+
+    IEnumerator DelayAndEnableButton()
+    {
+        yield return new WaitForSeconds(20f);
+        _buttonResetNumber.interactable = true;
+    }
+
+
     void Update()
     {
         if (_randomNumberFirstPin == 5 && _randomNumberSecondPin == 5 && _randomNumberThirdPin == 5)
         {
             _panelWinner.SetActive(true);
+            imagePinFirst.SetActive(false);
+            imagePinSecond.SetActive(false);
+            imagePinThird.SetActive(false);
+            _buttonDrill.SetActive(false);
+            _buttonHammer.SetActive(false);
+            _buttonLockPick.SetActive(false);
+            _buttonDynamite.SetActive(false);
+            panelTimer.SetActive(false);
+            soundWinnerPanel.Play();
             _timer = 0;
             StopCoroutine(Countdown());
         }
         else if (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7)
         {
             _panelWinner.SetActive(true);
+            imagePinFirst.SetActive(false);
+            imagePinSecond.SetActive(false);
+            imagePinThird.SetActive(false);
+            _buttonDrill.SetActive(false);
+            _buttonHammer.SetActive(false);
+            _buttonLockPick.SetActive(false);
+            _buttonDynamite.SetActive(false);
+            panelTimer.SetActive(false);
+            soundWinnerPanel.Play();
             _timer = 0;
             StopCoroutine(Countdown());
         }
         else if (_timer == 0)
         {
             _panelLoser.SetActive(true);
+            imagePinFirst.SetActive(false);
+            imagePinSecond.SetActive(false);
+            imagePinThird.SetActive(false);
+            _buttonDrill.SetActive(false);
+            _buttonHammer.SetActive(false);
+            _buttonLockPick.SetActive(false);
+            _buttonDynamite.SetActive(false);
+            panelTimer.SetActive(false);
+            soundLoserPanel.Play();
         }
     }
 }
