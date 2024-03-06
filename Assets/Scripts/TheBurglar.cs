@@ -22,17 +22,9 @@ public class TheBurglar : MonoBehaviour
     public AudioSource soundWinnerPanel;
     public AudioSource soundLoserPanel;
 
-
-    public GameObject imagePinFirst;
-    public GameObject imagePinSecond;
-    public GameObject imagePinThird;
-    public GameObject _buttonDrill;
-    public GameObject _buttonHammer;
-    public GameObject _buttonLockPick;
-    public GameObject _buttonDynamite;
-    public GameObject panelTimer;
-
-
+    public GameObject[] _imagesPin;
+    public GameObject[] _buttonsTools;
+    public GameObject _panelTimer;
 
     private int _randomNumberFirstPin;
     private int _randomNumberSecondPin;
@@ -42,34 +34,35 @@ public class TheBurglar : MonoBehaviour
 
     void Start()
     {
-        _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
-        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
-        _numberPinThirdText.text = _randomNumberThirdPin.ToString();
+        GenerateRandomNumbers();
+        ChangeNumberInPins();
         _timerText.text = _timer.ToString();
         _timer = 60;
         StartCoroutine(Countdown());
     }
 
-    public void OnClickButtonRestart()
+    void GenerateRandomNumbers()
     {
-        imagePinFirst.SetActive(true);
-        imagePinSecond.SetActive(true);
-        imagePinThird.SetActive(true);
-        _buttonDrill.SetActive(true);
-        _buttonHammer.SetActive(true);
-        _buttonLockPick.SetActive(true);
-        _buttonDynamite.SetActive(true);
-        panelTimer.SetActive(true);
-        _buttonResetNumber.interactable = true;
         _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
         _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
         _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
+    }
+
+    void ChangeNumberInPins()
+    {
         _numberPinFirstText.text = _randomNumberFirstPin.ToString();
         _numberPinSecondText.text = _randomNumberSecondPin.ToString();
         _numberPinThirdText.text = _randomNumberThirdPin.ToString();
+    }
+
+    public void OnClickButtonRestart()
+    {
+        EnableGameObjects(_imagesPin);
+        EnableGameObjects(_buttonsTools);
+        _buttonResetNumber.interactable = true;
+        GenerateRandomNumbers();
+        ChangeNumberInPins();
+        _panelTimer.SetActive(true);
         _timerText.text = _timer.ToString();
         _panelWinner.SetActive(false);
         _panelLoser.SetActive(false);
@@ -85,7 +78,6 @@ public class TheBurglar : MonoBehaviour
             _timerText.text = _timer.ToString();
             yield return new WaitForSeconds(1f);
         }
-        
     }
 
     public void OnClickButtonDrill()
@@ -98,9 +90,7 @@ public class TheBurglar : MonoBehaviour
         {
             _randomNumberSecondPin--;
         }
-        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
-        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
-       
+        ChangeNumberInPins();
     }
 
     public void OnClickButtonHammer()
@@ -124,10 +114,7 @@ public class TheBurglar : MonoBehaviour
         {
             _randomNumberThirdPin--;
         }
-        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
-        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
-        _numberPinThirdText.text = _randomNumberThirdPin.ToString();
-        
+        ChangeNumberInPins();
     }
 
     public void OnClickButtonLockPick()
@@ -144,20 +131,13 @@ public class TheBurglar : MonoBehaviour
         {
             _randomNumberThirdPin++;
         }
-        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
-        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
-        _numberPinThirdText.text = _randomNumberThirdPin.ToString();
-        
+        ChangeNumberInPins();
     }
 
     public void OnClickResetNumber()
     {
-        _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _numberPinFirstText.text = _randomNumberFirstPin.ToString();
-        _numberPinSecondText.text = _randomNumberSecondPin.ToString();
-        _numberPinThirdText.text = _randomNumberThirdPin.ToString();
+        GenerateRandomNumbers();
+        ChangeNumberInPins();
         _buttonResetNumber.interactable = false;
         StartCoroutine(DelayAndEnableButton());
     }
@@ -167,53 +147,78 @@ public class TheBurglar : MonoBehaviour
         yield return new WaitForSeconds(20f);
         _buttonResetNumber.interactable = true;
     }
+    void EnableGameObjects(GameObject[] gameObjects)
+    {
+        foreach (GameObject gameObject in gameObjects)
+        {
+            gameObject.SetActive(true);
+        }
+    }
 
+    void DisableGameObjects(GameObject[] gameObjects)
+    {
+        foreach (GameObject gameObject in gameObjects)
+        {
+            gameObject.SetActive(false);
+        }
+    }
 
-    void Update()
+    void WinGame()
+    {
+        _panelWinner.SetActive(true);
+        DisableGameObjects(_imagesPin);
+        DisableGameObjects(_buttonsTools);
+        _panelTimer.SetActive(false);
+        soundWinnerPanel.Play();
+        _timer = 0;
+        StopCoroutine(Countdown());
+    }
+
+    void LoseGame()
+    {
+        _panelLoser.SetActive(true);
+        DisableGameObjects(_imagesPin);
+        DisableGameObjects(_buttonsTools);
+        _panelTimer.SetActive(false);
+        soundLoserPanel.Play();
+    }
+
+    void ResetGame()
+    {
+        _panelWinner.SetActive(false);
+        _panelLoser.SetActive(false);
+        EnableGameObjects(_imagesPin);
+        EnableGameObjects(_buttonsTools);
+        _panelTimer.SetActive(true);
+        GenerateRandomNumbers();
+        ChangeNumberInPins();
+        _timer = 60;
+        StartCoroutine(Countdown());
+    }
+
+    void CheckWinCondition()
     {
         if (_randomNumberFirstPin == 5 && _randomNumberSecondPin == 5 && _randomNumberThirdPin == 5)
         {
-            _panelWinner.SetActive(true);
-            imagePinFirst.SetActive(false);
-            imagePinSecond.SetActive(false);
-            imagePinThird.SetActive(false);
-            _buttonDrill.SetActive(false);
-            _buttonHammer.SetActive(false);
-            _buttonLockPick.SetActive(false);
-            _buttonDynamite.SetActive(false);
-            panelTimer.SetActive(false);
-            soundWinnerPanel.Play();
-            _timer = 0;
-            StopCoroutine(Countdown());
+            WinGame();
         }
         else if (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7)
         {
-            _panelWinner.SetActive(true);
-            imagePinFirst.SetActive(false);
-            imagePinSecond.SetActive(false);
-            imagePinThird.SetActive(false);
-            _buttonDrill.SetActive(false);
-            _buttonHammer.SetActive(false);
-            _buttonLockPick.SetActive(false);
-            _buttonDynamite.SetActive(false);
-            panelTimer.SetActive(false);
-            soundWinnerPanel.Play();
-            _timer = 0;
-            StopCoroutine(Countdown());
+            WinGame();
         }
-        else if (_timer == 0)
+    }
+
+    void CheckLoseCondition()
+    {
+        if (_timer == 0)
         {
-            _panelLoser.SetActive(true);
-            imagePinFirst.SetActive(false);
-            imagePinSecond.SetActive(false);
-            imagePinThird.SetActive(false);
-            _buttonDrill.SetActive(false);
-            _buttonHammer.SetActive(false);
-            _buttonLockPick.SetActive(false);
-            _buttonDynamite.SetActive(false);
-            panelTimer.SetActive(false);
-            soundLoserPanel.Play();
+            LoseGame();
         }
+    }
+    void Update()
+    {
+        CheckWinCondition();
+        CheckLoseCondition();
     }
 }
 

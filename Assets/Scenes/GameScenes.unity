@@ -1846,7 +1846,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -3449,7 +3449,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 2
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -4142,14 +4142,16 @@ MonoBehaviour:
   _buttonResetNumber: {fileID: 1008705086}
   soundWinnerPanel: {fileID: 830131331}
   soundLoserPanel: {fileID: 1252919936}
-  imagePinFirst: {fileID: 174844739}
-  imagePinSecond: {fileID: 1606931043}
-  imagePinThird: {fileID: 742074622}
-  _buttonDrill: {fileID: 279850307}
-  _buttonHammer: {fileID: 533495196}
-  _buttonLockPick: {fileID: 911723198}
-  _buttonDynamite: {fileID: 1008705084}
-  panelTimer: {fileID: 1054153274}
+  _imagesPin:
+  - {fileID: 174844739}
+  - {fileID: 1606931043}
+  - {fileID: 742074622}
+  _buttonsTools:
+  - {fileID: 279850307}
+  - {fileID: 533495196}
+  - {fileID: 911723198}
+  - {fileID: 1008705084}
+  _panelTimer: {fileID: 1054153274}
 --- !u!1 &1379281839
 GameObject:
   m_ObjectHideFlags: 0
@@ -4251,10 +4253,10 @@ RectTransform:
   - {fileID: 279850308}
   - {fileID: 533495197}
   - {fileID: 911723199}
+  - {fileID: 1008705085}
   - {fileID: 1779090857}
   - {fileID: 1447919555}
   - {fileID: 1054153275}
-  - {fileID: 1008705085}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
