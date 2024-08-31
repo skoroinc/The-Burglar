@@ -12,6 +12,7 @@ public class TheBurglar : MonoBehaviour
 {
     [SerializeField] private int _maxHiddenNumber;
     [SerializeField] private int _minHiddenNumber;
+<<<<<<< Updated upstream
     [SerializeField] private TMP_Text _numberPinFirstText;
     [SerializeField] private TMP_Text _numberPinSecondText;
     [SerializeField] private TMP_Text _numberPinThirdText;
@@ -25,6 +26,29 @@ public class TheBurglar : MonoBehaviour
     [SerializeField] private GameObject[] _buttonsTools;
     [SerializeField] private GameObject _panelTimer;
     [SerializeField] private float _timerTime;
+=======
+    public TMP_Text _numberPinFirstText;
+    public TMP_Text _numberPinSecondText;
+    public TMP_Text _numberPinThirdText;
+    public TMP_Text _timerText;
+    public GameObject _panelWinner;
+    public GameObject _panelLoser;
+    public UnityEngine.UI.Button _buttonResetNumber;
+    public AudioSource soundWinnerPanel;
+    public AudioSource soundLoserPanel;
+
+
+    public GameObject imagePinFirst;
+    public GameObject imagePinSecond;
+    public GameObject imagePinThird;
+    public GameObject _buttonDrill;
+    public GameObject _buttonHammer;
+    public GameObject _buttonLockPick;
+    public GameObject _buttonDynamite;
+    public GameObject panelTimer;
+
+
+>>>>>>> Stashed changes
     private int _randomNumberFirstPin;
     private int _randomNumberSecondPin;
     private int _randomNumberThirdPin;
