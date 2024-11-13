@@ -1,72 +1,85 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
-
 
 public class TheBurglar : MonoBehaviour
 {
+    #region Singleton Implementation
+    private static TheBurglar instance;
+
+    public static TheBurglar Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindAnyObjectByType<TheBurglar>();
+                if (instance == null)
+                {
+                    Debug.LogError("An instance of TheBurglar is needed in the scene.");
+                }
+            }
+            return instance;
+        }
+    }
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    #endregion
+
     [SerializeField] private int _maxHiddenNumber;
     [SerializeField] private int _minHiddenNumber;
-<<<<<<< Updated upstream
     [SerializeField] private TMP_Text _numberPinFirstText;
     [SerializeField] private TMP_Text _numberPinSecondText;
     [SerializeField] private TMP_Text _numberPinThirdText;
     [SerializeField] private TMP_Text _timerText;
     [SerializeField] private GameObject _panelWinner;
     [SerializeField] private GameObject _panelLoser;
-    [SerializeField] private UnityEngine.UI.Button _buttonResetNumber;
+    [SerializeField] private Button _buttonResetNumber;
     [SerializeField] private AudioClip winSound;
     [SerializeField] private AudioClip loseSound;
     [SerializeField] private GameObject[] _imagesPin;
     [SerializeField] private GameObject[] _buttonsTools;
     [SerializeField] private GameObject _panelTimer;
     [SerializeField] private float _timerTime;
-=======
-    public TMP_Text _numberPinFirstText;
-    public TMP_Text _numberPinSecondText;
-    public TMP_Text _numberPinThirdText;
-    public TMP_Text _timerText;
-    public GameObject _panelWinner;
-    public GameObject _panelLoser;
-    public UnityEngine.UI.Button _buttonResetNumber;
-    public AudioSource soundWinnerPanel;
-    public AudioSource soundLoserPanel;
 
+    private AudioSource soundWinnerPanel;
+    private AudioSource soundLoserPanel;
 
-    public GameObject imagePinFirst;
-    public GameObject imagePinSecond;
-    public GameObject imagePinThird;
-    public GameObject _buttonDrill;
-    public GameObject _buttonHammer;
-    public GameObject _buttonLockPick;
-    public GameObject _buttonDynamite;
-    public GameObject panelTimer;
-
-
->>>>>>> Stashed changes
     private int _randomNumberFirstPin;
     private int _randomNumberSecondPin;
     private int _randomNumberThirdPin;
-    
 
-    
+    private float remainingTime;
+
     private void Start()
     {
+        soundWinnerPanel = GetComponent<AudioSource>();
+        soundLoserPanel= GetComponent<AudioSource>();
         GenerateRandomNumbers();
         ChangeNumberInPins();
         _timerText.text = _timerTime.ToString();
         StartCoroutine(Countdown());
     }
-    void Update()
+
+    private void Update()
     {
-        
+        // Оставляем пустым, если не требуется обновление
     }
 
+    #region Game Logic Methods
     public void OnClickButtonDrill()
     {
         if (_randomNumberFirstPin != 10)
@@ -80,6 +93,7 @@ public class TheBurglar : MonoBehaviour
         ChangeNumberInPins();
         CheckWinCondition();
     }
+
     public void OnClickButtonHammer()
     {
         if (_randomNumberFirstPin != 0)
@@ -104,6 +118,7 @@ public class TheBurglar : MonoBehaviour
         ChangeNumberInPins();
         CheckWinCondition();
     }
+
     public void OnClickButtonLockPick()
     {
         if (_randomNumberFirstPin != 0)
@@ -121,6 +136,7 @@ public class TheBurglar : MonoBehaviour
         ChangeNumberInPins();
         CheckWinCondition();
     }
+
     public void OnClickResetNumber()
     {
         GenerateRandomNumbers();
@@ -142,11 +158,9 @@ public class TheBurglar : MonoBehaviour
         _panelLoser.SetActive(false);
         StartCoroutine(Countdown());
     }
-    public float GetTimerTime()
-    {
-        return _timerTime;
-    }
+    #endregion
 
+    #region Helper Methods
     private void GenerateRandomNumbers()
     {
         _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
@@ -161,69 +175,76 @@ public class TheBurglar : MonoBehaviour
         _numberPinThirdText.text = _randomNumberThirdPin.ToString();
     }
 
-    IEnumerator Countdown()
-    {
-        while (_timerTime > 0)
-        {
-            _timerTime--;
-            _timerText.text = _timerTime.ToString();
-            yield return new WaitForSeconds(1f);
-        }
-        LoseGame();
-    }
-
-    IEnumerator DelayAndEnableButton()
-    {
-        yield return new WaitForSeconds(20f);
-        _buttonResetNumber.interactable = true;
-    }
     private void CheckWinCondition()
     {
-        if (_randomNumberFirstPin == 5 && _randomNumberSecondPin == 5 && _randomNumberThirdPin == 5)
+        if (_randomNumberFirstPin == 5 &&
+        _randomNumberSecondPin == 5 &&
+        _randomNumberThirdPin == 5)
         {
-            WinGame();
-        }
-        else if (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7)
-        {
-            WinGame();
+            WinSequence();
         }
     }
 
-    private void WinGame()
+    private void WinSequence()
     {
-        StopAllCoroutines();
-        AudioSource.PlayClipAtPoint(winSound, transform.position);
         _panelWinner.SetActive(true);
-        DisableGameObjects(_imagesPin);
-        DisableGameObjects(_buttonsTools);
-        _panelTimer.SetActive(false);
+        _panelLoser.SetActive(false);
+        StopAllCoroutines();
+        PlayWinSound();
+    }
+
+    private void CheckLoseCondition()
+    {
+        _panelLoser.SetActive(true); 
+        _panelWinner.SetActive(false); 
+        _panelTimer.SetActive(false); 
+        _buttonResetNumber.interactable = true; 
+        PlayLoseSound(); 
+    }
+
+    private void PlayWinSound()
+    {
+        soundWinnerPanel.PlayOneShot(winSound);
+    }
+
+    private void PlayLoseSound()
+    {
+        soundLoserPanel.PlayOneShot(loseSound);
+    }
+
+    private IEnumerator Countdown()
+    {
+        remainingTime = _timerTime;
+
+        while (remainingTime > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            remainingTime -= 1f;
+            _timerText.text = remainingTime.ToString();
+        }
+
+        CheckLoseCondition();
         
     }
 
-    private void LoseGame()
+    private IEnumerator DelayAndEnableButton()
     {
-        _panelLoser.SetActive(true);
-        DisableGameObjects(_imagesPin);
-        DisableGameObjects(_buttonsTools);
-        _panelTimer.SetActive(false);
-        AudioSource.PlayClipAtPoint(loseSound, transform.position);
+        // Логика задержки перед включением кнопки
+        yield break;
     }
 
-   
-    private void EnableGameObjects(GameObject[] gameObjects)
+    private void EnableGameObjects(GameObject[] objects)
     {
-        foreach (GameObject gameObject in gameObjects)
+        foreach (var obj in objects)
         {
-            gameObject.SetActive(true);
+            obj.SetActive(true);
         }
     }
 
-    private void DisableGameObjects(GameObject[] gameObjects)
+    private float GetTimerTime()
     {
-        foreach (GameObject gameObject in gameObjects)
-        {
-            gameObject.SetActive(false);
-        }
+        // Логика получения оставшегося времени
+        return _timerTime;
     }
+    #endregion
 }
-
