@@ -76,7 +76,7 @@ public class TheBurglar : MonoBehaviour
 
     private void Update()
     {
-        // Оставляем пустым, если не требуется обновление
+        
     }
 
     #region Game Logic Methods
@@ -177,9 +177,8 @@ public class TheBurglar : MonoBehaviour
 
     private void CheckWinCondition()
     {
-        if (_randomNumberFirstPin == 5 &&
-        _randomNumberSecondPin == 5 &&
-        _randomNumberThirdPin == 5)
+        if (( _randomNumberFirstPin == 5 && _randomNumberSecondPin == 5 && _randomNumberThirdPin == 5) ||
+            (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7))
         {
             WinSequence();
         }
@@ -229,7 +228,7 @@ public class TheBurglar : MonoBehaviour
 
     private IEnumerator DelayAndEnableButton()
     {
-        // Логика задержки перед включением кнопки
+        
         yield break;
     }
 
@@ -243,7 +242,7 @@ public class TheBurglar : MonoBehaviour
 
     private float GetTimerTime()
     {
-        // Логика получения оставшегося времени
+        
         return _timerTime;
     }
     #endregion

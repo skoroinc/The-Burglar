@@ -4181,7 +4181,7 @@ MonoBehaviour:
   - {fileID: 911723198}
   - {fileID: 1008705084}
   _panelTimer: {fileID: 1054153274}
-  _timerTime: 10
+  _timerTime: 60
 --- !u!82 &1338964164
 AudioSource:
   m_ObjectHideFlags: 0
