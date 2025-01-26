@@ -4160,8 +4160,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6294250ed00442c48ab6745845f6f017, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHiddenNumber: 10
-  _minHiddenNumber: 0
   _numberPinFirstText: {fileID: 730925795}
   _numberPinSecondText: {fileID: 584090839}
   _numberPinThirdText: {fileID: 119857151}
@@ -4169,8 +4167,6 @@ MonoBehaviour:
   _panelWinner: {fileID: 1779090856}
   _panelLoser: {fileID: 1447919552}
   _buttonResetNumber: {fileID: 1008705086}
-  winSound: {fileID: 8300000, guid: 92290866d28b61242b14526906a1f73a, type: 3}
-  loseSound: {fileID: 8300000, guid: adc53ccb5aa561440be1fd3c5402f5e4, type: 3}
   _imagesPin:
   - {fileID: 174844739}
   - {fileID: 1606931043}
@@ -4181,6 +4177,8 @@ MonoBehaviour:
   - {fileID: 911723198}
   - {fileID: 1008705084}
   _panelTimer: {fileID: 1054153274}
+  _winSound: {fileID: 8300000, guid: 92290866d28b61242b14526906a1f73a, type: 3}
+  _loseSound: {fileID: 8300000, guid: adc53ccb5aa561440be1fd3c5402f5e4, type: 3}
   _timerTime: 60
 --- !u!82 &1338964164
 AudioSource:

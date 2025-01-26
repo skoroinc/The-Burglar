@@ -1,46 +1,20 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class TheBurglar : MonoBehaviour
 {
-    #region Singleton Implementation
-    private static TheBurglar instance;
+    
+    private const int VictoryNumber1 = 5;
+    private const int VictoryNumber2 = 7;
+    private const int MinPinValue = 0;
+    private const int MaxPinValue = 10;
+    private const float ResetButtonCooldown = 20f;
+    
 
-    public static TheBurglar Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = FindAnyObjectByType<TheBurglar>();
-                if (instance == null)
-                {
-                    Debug.LogError("An instance of TheBurglar is needed in the scene.");
-                }
-            }
-            return instance;
-        }
-    }
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-    #endregion
-
-    [SerializeField] private int _maxHiddenNumber;
-    [SerializeField] private int _minHiddenNumber;
+    
     [SerializeField] private TMP_Text _numberPinFirstText;
     [SerializeField] private TMP_Text _numberPinSecondText;
     [SerializeField] private TMP_Text _numberPinThirdText;
@@ -48,93 +22,45 @@ public class TheBurglar : MonoBehaviour
     [SerializeField] private GameObject _panelWinner;
     [SerializeField] private GameObject _panelLoser;
     [SerializeField] private Button _buttonResetNumber;
-    [SerializeField] private AudioClip winSound;
-    [SerializeField] private AudioClip loseSound;
     [SerializeField] private GameObject[] _imagesPin;
     [SerializeField] private GameObject[] _buttonsTools;
     [SerializeField] private GameObject _panelTimer;
+    [SerializeField] private AudioClip _winSound;
+    [SerializeField] private AudioClip _loseSound;
     [SerializeField] private float _timerTime;
+    
 
-    private AudioSource soundWinnerPanel;
-    private AudioSource soundLoserPanel;
-
+    
+    private AudioSource _audioSource;
     private int _randomNumberFirstPin;
     private int _randomNumberSecondPin;
     private int _randomNumberThirdPin;
+    private float _remainingTime;
+    private Coroutine _countdownCoroutine;
+    
 
-    private float remainingTime;
-
+    
     private void Start()
     {
-        soundWinnerPanel = GetComponent<AudioSource>();
-        soundLoserPanel= GetComponent<AudioSource>();
-        GenerateRandomNumbers();
-        ChangeNumberInPins();
-        _timerText.text = _timerTime.ToString();
-        StartCoroutine(Countdown());
+        _audioSource = GetComponent<AudioSource>();
+        RestartGame();
     }
+    
 
-    private void Update()
-    {
-        
-    }
-
-    #region Game Logic Methods
+    
     public void OnClickButtonDrill()
     {
-        if (_randomNumberFirstPin != 10)
-        {
-            _randomNumberFirstPin++;
-        }
-        if (_randomNumberSecondPin != 0)
-        {
-            _randomNumberSecondPin--;
-        }
-        ChangeNumberInPins();
-        CheckWinCondition();
+        UpdatePinValues(1, -1, 0);
     }
 
     public void OnClickButtonHammer()
     {
-        if (_randomNumberFirstPin != 0)
-        {
-            _randomNumberFirstPin--;
-        }
-        if (_randomNumberSecondPin != 10)
-        {
-            if (_randomNumberSecondPin == 9)
-            {
-                _randomNumberSecondPin++;
-            }
-            else
-            {
-                _randomNumberSecondPin += 2;
-            }
-        }
-        if (_randomNumberThirdPin != 0)
-        {
-            _randomNumberThirdPin--;
-        }
-        ChangeNumberInPins();
-        CheckWinCondition();
+        UpdatePinValues(-1, 2, -1);
     }
 
     public void OnClickButtonLockPick()
     {
-        if (_randomNumberFirstPin != 0)
-        {
-            _randomNumberFirstPin--;
-        }
-        if (_randomNumberSecondPin != 10)
-        {
-            _randomNumberSecondPin++;
-        }
-        if (_randomNumberThirdPin != 10)
-        {
-            _randomNumberThirdPin++;
-        }
-        ChangeNumberInPins();
-        CheckWinCondition();
+        UpdatePinValues(-1, 1, 1);
     }
 
     public void OnClickResetNumber()
@@ -142,30 +68,51 @@ public class TheBurglar : MonoBehaviour
         GenerateRandomNumbers();
         ChangeNumberInPins();
         _buttonResetNumber.interactable = false;
-        StartCoroutine(DelayAndEnableButton());
+        StartCoroutine(EnableButtonAfterDelay());
     }
 
     public void OnClickButtonRestart()
+    {
+        RestartGame();
+    }
+
+    public void ChangeScene(int sceneID)
+    {
+        SceneManager.LoadScene(sceneID);
+    }
+    
+
+    
+    private void RestartGame()
     {
         EnableGameObjects(_imagesPin);
         EnableGameObjects(_buttonsTools);
         _buttonResetNumber.interactable = true;
         GenerateRandomNumbers();
         ChangeNumberInPins();
-        _panelTimer.SetActive(true);
-        _timerText.text = GetTimerTime().ToString();
         _panelWinner.SetActive(false);
         _panelLoser.SetActive(false);
-        StartCoroutine(Countdown());
+        _panelTimer.SetActive(true);
+        _timerText.text = _timerTime.ToString();
+        if (_countdownCoroutine != null) StopCoroutine(_countdownCoroutine);
+        _countdownCoroutine = StartCoroutine(Countdown());
     }
-    #endregion
 
-    #region Helper Methods
+    private void UpdatePinValues(int firstDelta, int secondDelta, int thirdDelta)
+    {
+        _randomNumberFirstPin = Mathf.Clamp(_randomNumberFirstPin + firstDelta, MinPinValue, MaxPinValue);
+        _randomNumberSecondPin = Mathf.Clamp(_randomNumberSecondPin + secondDelta, MinPinValue, MaxPinValue);
+        _randomNumberThirdPin = Mathf.Clamp(_randomNumberThirdPin + thirdDelta, MinPinValue, MaxPinValue);
+
+        ChangeNumberInPins();
+        CheckWinCondition();
+    }
+
     private void GenerateRandomNumbers()
     {
-        _randomNumberFirstPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberSecondPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
-        _randomNumberThirdPin = Random.Range(_minHiddenNumber, _maxHiddenNumber + 1);
+        _randomNumberFirstPin = Random.Range(MinPinValue, MaxPinValue + 1);
+        _randomNumberSecondPin = Random.Range(MinPinValue, MaxPinValue + 1);
+        _randomNumberThirdPin = Random.Range(MinPinValue, MaxPinValue + 1);
     }
 
     private void ChangeNumberInPins()
@@ -177,8 +124,8 @@ public class TheBurglar : MonoBehaviour
 
     private void CheckWinCondition()
     {
-        if (( _randomNumberFirstPin == 5 && _randomNumberSecondPin == 5 && _randomNumberThirdPin == 5) ||
-            (_randomNumberFirstPin == 7 && _randomNumberSecondPin == 7 && _randomNumberThirdPin == 7))
+        if ((_randomNumberFirstPin == VictoryNumber1 && _randomNumberSecondPin == VictoryNumber1 && _randomNumberThirdPin == VictoryNumber1) ||
+            (_randomNumberFirstPin == VictoryNumber2 && _randomNumberSecondPin == VictoryNumber2 && _randomNumberThirdPin == VictoryNumber2))
         {
             WinSequence();
         }
@@ -187,49 +134,30 @@ public class TheBurglar : MonoBehaviour
     private void WinSequence()
     {
         _panelWinner.SetActive(true);
-        _panelLoser.SetActive(false);
-        StopAllCoroutines();
-        PlayWinSound();
-    }
-
-    private void CheckLoseCondition()
-    {
-        _panelLoser.SetActive(true); 
-        _panelWinner.SetActive(false); 
-        _panelTimer.SetActive(false); 
-        _buttonResetNumber.interactable = true; 
-        PlayLoseSound(); 
-    }
-
-    private void PlayWinSound()
-    {
-        soundWinnerPanel.PlayOneShot(winSound);
-    }
-
-    private void PlayLoseSound()
-    {
-        soundLoserPanel.PlayOneShot(loseSound);
+        _panelTimer.SetActive(false);
+        if (_countdownCoroutine != null) StopCoroutine(_countdownCoroutine);
+        PlaySound(_winSound);
     }
 
     private IEnumerator Countdown()
     {
-        remainingTime = _timerTime;
+        _remainingTime = _timerTime;
 
-        while (remainingTime > 0)
+        while (_remainingTime > 0)
         {
             yield return new WaitForSeconds(1f);
-            remainingTime -= 1f;
-            _timerText.text = remainingTime.ToString();
+            _remainingTime--;
+            _timerText.text = _remainingTime.ToString();
         }
 
-        CheckLoseCondition();
-        
+        LoseSequence();
     }
 
-    private IEnumerator DelayAndEnableButton()
+    private void LoseSequence()
     {
-        
-        yield break;
+        _panelLoser.SetActive(true);
+        _panelTimer.SetActive(false);
+        PlaySound(_loseSound);
     }
 
     private void EnableGameObjects(GameObject[] objects)
@@ -240,10 +168,15 @@ public class TheBurglar : MonoBehaviour
         }
     }
 
-    private float GetTimerTime()
+    private IEnumerator EnableButtonAfterDelay()
     {
-        
-        return _timerTime;
+        yield return new WaitForSeconds(ResetButtonCooldown);
+        _buttonResetNumber.interactable = true;
     }
-    #endregion
+
+    private void PlaySound(AudioClip clip)
+    {
+        _audioSource.PlayOneShot(clip);
+    }
+    
 }
